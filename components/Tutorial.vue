@@ -62,23 +62,27 @@
         </h2>
         <div class="main-form">
           <div class="form-field">
-            <label for="name" class="mr-14"><b>Title:</b></label>
+            <label for="name" class="title"><b>Title:</b></label>
             <input type="text" id="name" class="input-field" v-model="title">
           </div>
           <div class="form-field">
-            <label for="name" class="mr-1.5"><b>Description:</b></label>
-            <input type="text" id="name" class="input-field" v-model="description">
+            <label for="name" class="desc"><b>Description:</b></label>
+            <textarea  type="text" id="name" class="input-field" v-model="description"></textarea>
           </div>
           <div class="form-btn-cont">
             <button class="form-btn" type="button" @click="submitData">Save</button>
-            <button class="form-btn" type="button" @click="getData">Show</button>
           </div>
-          <div class="data-cont mb-3" v-for="item in tutorialsArr" :key="item._id">
-            <div>
-              <label for="name"><b>Title:</b></label> <span>{{item.title}}</span>
-            </div>
-            <div>
-              <label for="name"><b>Description:</b></label> <span>{{item.description}}</span>
+          <div class="main-data-cont">
+            <div class="data-cont mb-3" v-for="item in tutorialsArr" :key="item._id">
+              <div>
+                <label for="name"><b>Title:</b></label> <span>{{item.title}}</span>
+              </div>
+              <div>
+                <label for="name"><b>Description:</b></label> <span class="desc-cont">{{item.description}}</span>
+              </div>
+              <div class="del-btn-cont">
+                <button class="del-btn" type="button" @click="delData(item._id)">Delete</button>
+              </div>
             </div>
           </div>
         </div>
@@ -122,14 +126,24 @@ export default {
         this.description = ""
         this.message = "Data is saved...."
         this.dialog.show()
+        this.getData()
         return res;
       }
     },
 
     async getData() {
       const res = await this.$axios.$get('/api/tutorials/getTutorials')
-      console.log("response from api : ",res.data)
       this.tutorialsArr = [...res]
+      return res;
+    },
+
+    async delData(delId) {
+      const res = await this.$axios.$delete('/api/tutorials/deleteTutorial',{ data: { id: delId } })
+      if(res._id){
+        this.message = "Data deleted succesfully...."
+        this.dialog.show()
+        this.getData()
+      }
       return res;
     },
 
@@ -142,7 +156,7 @@ export default {
 <style scoped>
   .input-field{
     background-color: rgb(234, 220, 220);
-    width: 300px;
+    width: 100%;
     border-radius: 5px;
     padding: 3px;
   }
@@ -152,14 +166,27 @@ export default {
   }
   .form-field{
     margin-bottom: 10px;
+    display: flex;
   }
   .form-btn{
     background-color: blue;
-    width: 100px;
+    width: 130px;
     color: white;
     border-radius: 5px;
     height: 30px;
     margin: 5px;
+    margin-top: 10px;
+  }
+  .del-btn{
+    background-color: red;
+    width: 70px;
+    color: white;
+    border-radius: 5px;
+    height: 30px;
+  }
+  .del-btn-cont{
+    display: flex;
+    flex-direction: row-reverse;
   }
   .dialog-btn{
     background-color: black;
@@ -176,9 +203,21 @@ export default {
     justify-content: center;
     margin-bottom: 10px;
   }
+  .main-data-cont{
+    height: 350px;
+    /* background-color: green; */
+    overflow-y: auto;
+  }
   .data-cont{
     display: flex;
     flex-direction: column;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .data-cont:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
   }
   .dialog{
     /* background-color: rgb(203, 195, 195); */
@@ -192,5 +231,14 @@ export default {
     padding: 10px;
     border-radius: 5px;
     color: white;
+  }
+  .title{
+    margin-right: 62px;
+  }
+  .desc{
+    margin-right: 10px;
+  }
+  .desc-cont{
+    word-wrap: break-word
   }
 </style>
